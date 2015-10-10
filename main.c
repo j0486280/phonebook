@@ -66,9 +66,15 @@ int main(int argc, char *argv[])
     char input[MAX_LAST_NAME_SIZE] = "zyxel";
     e = pHead;
 
+    /*Get compress input value*/
+    char compression[MAX_LAST_NAME_SIZE];
+    strcpy(compression,input);
+#ifdef COMPRESS_METHOD
+    compress(input,compression);
+#endif
     assert(findName(input, e) &&
-           "Did you implement findName() in " IMPL "?");
-    /*assert(0 == strcmp(findName(input, e)->lastName, "zyxel"));*/
+           "Did you implement findName() in " IMPL "?");  
+    assert(0 == strcmp(findName(input, e)->lastName, compression));
 
 #if defined(__GNUC__)
     __builtin___clear_cache((char *) pHead, (char *) pHead + sizeof(entry));

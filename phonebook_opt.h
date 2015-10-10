@@ -2,11 +2,12 @@
 #define _PHONEBOOK_H
 
 #define MAX_LAST_NAME_SIZE 16
-#define LIMIT_LAST_NAME_SIZE 10
+#define COMPRESS_LAST_NAME_SIZE 10
+#define COMPRESS_METHOD
 
 /* original version */
 typedef struct __PHONE_BOOK_ENTRY {
-    char lastName[LIMIT_LAST_NAME_SIZE];
+    char lastName[COMPRESS_LAST_NAME_SIZE];
     struct __PHONE_BOOK_DETAIL *_detail;
     struct __PHONE_BOOK_ENTRY *pNext;
 } entry;
@@ -23,6 +24,7 @@ typedef struct __PHONE_BOOK_DETAIL {
     char zip[5];
 } detail;
 
+void compress(char *input,char *output);
 entry *findName(char lastname[], entry *pHead);
 entry *append(char lastName[], entry *e);
 

@@ -8,7 +8,7 @@
 #define HASH_METHOD 3
 
 typedef struct __PHONE_BOOK_ENTRY {
-    char lastName[COMPRESS_LAST_NAME_SIZE];
+    char lastName[MAX_LAST_NAME_SIZE];
     struct __PHONE_BOOK_DETAIL *_detail;
     struct __PHONE_BOOK_ENTRY *pNext;
 } entry;

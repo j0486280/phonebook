@@ -3,9 +3,10 @@
 
 #define MAX_LAST_NAME_SIZE 16
 #define COMPRESS_LAST_NAME_SIZE 10
+#define HASH_BUCKET_SIZE  6997
 #define COMPRESS_METHOD
+#define HASH_METHOD 3
 
-/* original version */
 typedef struct __PHONE_BOOK_ENTRY {
     char lastName[COMPRESS_LAST_NAME_SIZE];
     struct __PHONE_BOOK_DETAIL *_detail;
@@ -24,8 +25,17 @@ typedef struct __PHONE_BOOK_DETAIL {
     char zip[5];
 } detail;
 
-void compress(char *input,char *output);
-entry *findName(char lastname[], entry *pHead);
-entry *append(char lastName[], entry *e);
+struct PHONEBOOK {
+    void (*initialize)(void);
+    void (*release)(void);
+    void (*moveNode)(void);
+    void (*get_cmp_buf)(char *input, char *output);
+    void (*addNode)(char lastName[], entry *node[]);
+    entry* (*findName)(char lastname[], entry *pHead[]);
+};
+
+entry *pHead[HASH_BUCKET_SIZE];
+entry *e[HASH_BUCKET_SIZE];
+struct PHONEBOOK PHONEBOOK;
 
 #endif

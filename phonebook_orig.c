@@ -26,3 +26,39 @@ entry *append(char lastName[], entry *e)
 
     return e;
 }
+
+void initialize()
+{
+    pHead = (entry *) malloc(sizeof(entry));
+    e = pHead;
+    pHead->pNext = NULL;
+}
+
+void release()
+{
+    free(pHead);
+}
+
+void moveNode()
+{
+    e = pHead;
+}
+
+void get_cmp_buf( char *input, char *output )
+{
+    strcpy(output,input);
+}
+
+void addNode( char lastName[], entry *node )
+{
+    e = append(lastName,node);
+}
+
+struct PHONEBOOK PHONEBOOK = {
+    .initialize = initialize,
+    .release = release,
+    .moveNode = moveNode,
+    .get_cmp_buf = get_cmp_buf,
+    .findName = findName,
+    .addNode = addNode
+};

@@ -7,6 +7,14 @@
 #define COMPRESS_METHOD
 #define HASH_METHOD 3
 
+/* Hash function */
+#define HASH_FUNCTION_DJB2
+//#define HASH_FUNCTION_TEST
+//#define HASH_FUNCTION_ONEBUCKET
+//#define HASH_FUNCTION_LOSE
+//#define HASH_FUNCTION_SDBM
+//#define HASH_FUNCTION_SINGHTLY
+
 typedef struct __PHONE_BOOK_ENTRY {
     char lastName[COMPRESS_LAST_NAME_SIZE];
     struct __PHONE_BOOK_DETAIL *_detail;

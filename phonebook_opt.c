@@ -6,7 +6,6 @@
 
 #include "phonebook_opt.h"
 
-static int bucket_count[HASH_BUCKET_SIZE] = {0};
 static int ASCII_ENG_CHAR_START = 97 - 1;
 static int COMPRESS_CHAR_BITS  = 5 - 1;
 static int ORIGINAL_CHAR_BITS = 8 - 1;
@@ -16,38 +15,37 @@ static inline unsigned long hash (char* lastName)
     unsigned long key = 0;
     int length = strlen( lastName );
     int i;
-    switch(HASH_METHOD) {
-        case 0:
-            /* djb2 method */
-            key = 5381;
-            for(i = 0 ; i < length ; i++ )
-                key = ( (key << 5 ) + key ) + lastName[i]; /* hash * 33 + c */
-            break;
-        case 1:
-            /* test method */
-            for(i = 0 ; i < length ; i++ )
-                key += ( lastName[i] << i );
-            break;
-        case 2:
-            /* Use one bucket to compare others */
-            key=0;
-            break;
-        case 3:
-            /* lose lose method */
-            for(i = 0 ; i < length ; i++ )
-                key += lastName[i];
-            break;
-        case 4:
-            /* sdbm method */
-            for(i = 0 ; i < length ; i++ )
-                key = ( ( key<<6 ) + ( key << 16 ) ) - key + lastName[i];
-            break;
-        case 5:
-            /* slightly different hash function */
-            for(i = 0 ; i < length ; i++ )
-                key = 31 * key + lastName[i];
-            break;
-    }
+
+#ifdef HASH_FUNCTION_DJB2
+    key = 5381;
+    for(i = 0 ; i < length ; i++ )
+        key = ( (key << 5 ) + key ) + lastName[i];
+#endif
+
+#ifdef HASH_FUNCTION_TEST
+    for(i = 0 ; i < length ; i++ )
+        key += ( lastName[i] << i );
+#endif
+
+#ifdef HASH_FUNCTION_ONEBUCKET
+    key = 0;
+#endif
+
+#ifdef HASH_FUNCTION_LOSE
+    for(i = 0 ; i < length ; i++ )
+        key += lastName[i];
+#endif
+
+#ifdef HASH_FUNCTION_SDBM
+    for(i = 0 ; i < length ; i++ )
+        key = ( ( key<<6 ) + ( key << 16 ) ) - key + lastName[i];
+#endif
+
+#ifdef HASH_FUNCTION_SINGHTLY
+    for(i = 0 ; i < length ; i++ )
+        key = 31 * key + lastName[i];
+#endif
+
     return key;
 }
 
@@ -85,27 +83,16 @@ static inline void compress(char *input,char *output)
 /* FILL YOUR OWN IMPLEMENTATION HERE! */
 entry *findName(char lastname[], entry *pHead[])
 {
-    int count = 0;
     char cmp_buffer[COMPRESS_LAST_NAME_SIZE];
     compress(lastname,cmp_buffer);
     unsigned int key=hash(lastname)%HASH_BUCKET_SIZE;
     entry *node=pHead[key];
     while (node != NULL) {
-        count++;
-        if (strcasecmp(cmp_buffer, node->lastName) == 0) {
-            printf("Find %s is search by %d times\n",lastname,count);
+        if (strcasecmp(cmp_buffer, node->lastName) == 0)
             return node;
-        }
         node = node->pNext;
     }
-    printf("%s is not found",lastname);
     return NULL;
-}
-
-void printCount()
-{
-    for(int i=0; i<HASH_BUCKET_SIZE; i++)
-        printf("%d\t",bucket_count[i]);
 }
 
 void append(char lastName[], entry *e[])
@@ -113,7 +100,6 @@ void append(char lastName[], entry *e[])
     char cmp_buffer[COMPRESS_LAST_NAME_SIZE];
     compress(lastName,cmp_buffer);
     unsigned int key=hash(lastName)%HASH_BUCKET_SIZE;
-    bucket_count[key]++;
 
     /* allocate memory for the new entry and put lastName */
     e[key]->pNext = (entry *) malloc(sizeof(entry));

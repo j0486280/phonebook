@@ -5,15 +5,7 @@
 #define COMPRESS_LAST_NAME_SIZE 10
 #define HASH_BUCKET_SIZE  6997
 #define COMPRESS_METHOD
-#define HASH_METHOD 3
-
-/* Hash function */
-#define HASH_FUNCTION_DJB2
-//#define HASH_FUNCTION_TEST
-//#define HASH_FUNCTION_ONEBUCKET
-//#define HASH_FUNCTION_LOSE
-//#define HASH_FUNCTION_SDBM
-//#define HASH_FUNCTION_SINGHTLY
+#define hashFunc hash_djb2
 
 typedef struct __PHONE_BOOK_ENTRY {
     char lastName[COMPRESS_LAST_NAME_SIZE];

@@ -10,42 +10,48 @@ static int ASCII_ENG_CHAR_START = 97 - 1;
 static int COMPRESS_CHAR_BITS  = 5 - 1;
 static int ORIGINAL_CHAR_BITS = 8 - 1;
 
-static inline unsigned long hash (char* lastName)
+static inline unsigned long hash_djb2(char* lastName)
+{
+    unsigned long key = 5381;
+    int length = strlen( lastName );
+    int i;
+    for(i = 0 ; i < length ; i++ )
+        key = ( (key << 5 ) + key ) + lastName[i];
+    return key;
+}
+
+static inline unsigned long hash_1bucket(char* lastName)
+{
+    return 0;
+}
+
+static inline unsigned long hash_lose(char* lastName)
 {
     unsigned long key = 0;
     int length = strlen( lastName );
     int i;
-
-#ifdef HASH_FUNCTION_DJB2
-    key = 5381;
-    for(i = 0 ; i < length ; i++ )
-        key = ( (key << 5 ) + key ) + lastName[i];
-#endif
-
-#ifdef HASH_FUNCTION_TEST
-    for(i = 0 ; i < length ; i++ )
-        key += ( lastName[i] << i );
-#endif
-
-#ifdef HASH_FUNCTION_ONEBUCKET
-    key = 0;
-#endif
-
-#ifdef HASH_FUNCTION_LOSE
     for(i = 0 ; i < length ; i++ )
         key += lastName[i];
-#endif
+    return key;
+}
 
-#ifdef HASH_FUNCTION_SDBM
+static inline unsigned long hash_sdbm(char* lastName)
+{
+    unsigned long key = 0;
+    int length = strlen( lastName );
+    int i;
     for(i = 0 ; i < length ; i++ )
         key = ( ( key<<6 ) + ( key << 16 ) ) - key + lastName[i];
-#endif
+    return key;
+}
 
-#ifdef HASH_FUNCTION_SINGHTLY
+static inline unsigned long hash_singhtly(char* lastName)
+{
+    unsigned long key = 0;
+    int length = strlen( lastName );
+    int i;
     for(i = 0 ; i < length ; i++ )
-        key = 31 * key + lastName[i];
-#endif
-
+        key = ( (key << 5 ) + key ) + lastName[i];
     return key;
 }
 
@@ -85,7 +91,7 @@ entry *findName(char lastname[], entry *pHead[])
 {
     char cmp_buffer[COMPRESS_LAST_NAME_SIZE];
     compress(lastname,cmp_buffer);
-    unsigned int key=hash(lastname)%HASH_BUCKET_SIZE;
+    unsigned int key=hashFunc(lastname)%HASH_BUCKET_SIZE;
     entry *node=pHead[key];
     while (node != NULL) {
         if (strcasecmp(cmp_buffer, node->lastName) == 0)
@@ -99,7 +105,7 @@ void append(char lastName[], entry *e[])
 {
     char cmp_buffer[COMPRESS_LAST_NAME_SIZE];
     compress(lastName,cmp_buffer);
-    unsigned int key=hash(lastName)%HASH_BUCKET_SIZE;
+    unsigned int key=hashFunc(lastName)%HASH_BUCKET_SIZE;
 
     /* allocate memory for the new entry and put lastName */
     e[key]->pNext = (entry *) malloc(sizeof(entry));

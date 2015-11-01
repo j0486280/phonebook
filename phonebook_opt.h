@@ -3,9 +3,11 @@
 
 #define MAX_LAST_NAME_SIZE 16
 #define COMPRESS_LAST_NAME_SIZE 10
-#define HASH_BUCKET_SIZE  6997
+#define HASH_BUCKET_SIZE  260000
 #define COMPRESS_METHOD
-#define hashFunc hash_djb2
+#define hashFunc hash_Soundex
+#define FUZZY_SEARCH
+//#define SHOW_RESULT
 
 typedef struct __PHONE_BOOK_ENTRY {
     char lastName[COMPRESS_LAST_NAME_SIZE];
@@ -33,6 +35,8 @@ struct PHONEBOOK {
     void (*addNode)(char lastName[], entry *node[]);
     entry* (*findName)(char lastname[], entry *pHead[]);
 };
+
+void decompress(char *input,char *output);
 
 entry *pHead[HASH_BUCKET_SIZE];
 entry *e[HASH_BUCKET_SIZE];

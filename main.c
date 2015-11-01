@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
     int i = 0;
     char line[MAX_LAST_NAME_SIZE];
     struct timespec start, end;
-    double cpu_time1, cpu_time2;
+    double cpu_time1, cpu_time2=0;
 
     /* check file opening */
     fp = fopen(DICT_FILE, "r");
@@ -75,16 +75,35 @@ int main(int argc, char *argv[])
         /*Get compress input value*/
         assert(PHONEBOOK.findName(input[i], e) &&
                "Did you implement findName() in " IMPL "?");
+
+#ifndef FUZZY_SEARCH
         assert(0 == strcmp(PHONEBOOK.findName(input[i], e)->lastName, in));
+#endif
 
 #if defined(__GNUC__)
         __builtin___clear_cache((char *) pHead, (char *) pHead + sizeof(entry));
 #endif
         /* compute the execution time */
         clock_gettime(CLOCK_REALTIME, &start);
-        PHONEBOOK.findName(input[i], e);
+        entry *result = PHONEBOOK.findName(input[i], e);
+
+#ifdef SHOW_RESULT
+        char output[MAX_LAST_NAME_SIZE];
+        if(0==strcmp(result -> lastName,in))
+            printf("Find %s\n",input[i]);
+        else {
+            int count = 0;
+            while (result != NULL) {
+                count++;
+                decompress(result->lastName,output);
+                printf("Simular Result : %s \n",output);
+                result = result -> pNext;
+            }
+            printf("Candidate count is %d \n",count);
+        }
+#endif
         clock_gettime(CLOCK_REALTIME, &end);
-        cpu_time2 = diff_in_second(start, end);
+        cpu_time2 += diff_in_second(start, end);
     }
     printf("execution time of append() : %lf sec\n", cpu_time1);
     printf("execution time of findName() : %lf sec\n", cpu_time2);

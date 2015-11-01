@@ -9,6 +9,49 @@
 static int ASCII_ENG_CHAR_START = 97 - 1;
 static int COMPRESS_CHAR_BITS  = 5 - 1;
 static int ORIGINAL_CHAR_BITS = 8 - 1;
+static int SOUNDEX_OUTPUT_LEN = 5;
+
+static inline void Soundex (char* input, char* output)
+{
+    int i = 1,index = 1;
+    output[0] = input[0];
+
+    while(input[i] !='\0' && index < SOUNDEX_OUTPUT_LEN) {
+        if( input[i] == 'b' || input[i] == 'p' || input[i] == 'f' ||input[i] == 'v' )
+            output[index] = '1';
+        else if( input[i] == 'c' || input[i] == 's' || input[i] == 'k'||
+                 input[i] == 'g' || input[i] == 'j' || input[i] == 'q' ||
+                 input[i] == 'x' || input[i] == 'z' )
+            output[index] = '2';
+        else if( input[i] == 'd' || input[i] == 't' )
+            output[index] = '3';
+        else if( input[i] == 'l' )
+            output[index] = '4';
+        else if( input[i] == 'm' || input[i] == 'n' )
+            output[index] = '5';
+        else if ( input[i] == 'r' )
+            output[index] = '6';
+        else
+            output[index] = '0';
+        if ( output[index-1] != output[index] )
+            index++;
+        i++;
+    }
+    while ( index < SOUNDEX_OUTPUT_LEN ) output[index++] = '0';
+}
+
+static inline long hash_Soundex(char *lastName)
+{
+    char output[SOUNDEX_OUTPUT_LEN] ;
+    Soundex(lastName,output);
+    unsigned long key = 0;
+    key += (output[0] - 97)*10000;
+    key += (output[1] - 48)*1000;
+    key += (output[2] - 48)*100;
+    key += (output[3] - 48)*10;
+    key += (output[4] - 48);
+    return key;
+}
 
 static inline unsigned long hash_djb2(char* lastName)
 {
@@ -86,6 +129,32 @@ static inline void compress(char *input,char *output)
     output[index] = '\0';
 }
 
+void decompress(char *input,char *output)
+{
+    bool b[80];
+    int i ,j;
+    int input_size = strlen(input);
+    char c = 0;
+    int count = 0;
+    int index = 0;
+
+    for( i = 0; i < input_size; i++ ) {
+        if( input[i] == '\0' ) break;
+        for( j = ORIGINAL_CHAR_BITS; j >= 0; j-- )
+            b[count++] = input[i]&(1 << j);
+    }
+
+    i = 0;
+    while(i < count) {
+        for( j = COMPRESS_CHAR_BITS; j >= 0 && i < count; j-- )
+            c += (b[i++] << j);
+        if(c != 0)
+            output[index++] = (c+ASCII_ENG_CHAR_START);
+        c = 0;
+    }
+    output[index] = '\0';
+}
+
 /* FILL YOUR OWN IMPLEMENTATION HERE! */
 entry *findName(char lastname[], entry *pHead[])
 {
@@ -98,7 +167,7 @@ entry *findName(char lastname[], entry *pHead[])
             return node;
         node = node->pNext;
     }
-    return NULL;
+    return pHead[key];
 }
 
 void append(char lastName[], entry *e[])

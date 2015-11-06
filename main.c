@@ -88,18 +88,29 @@ int main(int argc, char *argv[])
         entry *result = PHONEBOOK.findName(input[i], e);
 
 #ifdef SHOW_RESULT
-        char output[MAX_LAST_NAME_SIZE];
-        if(0==strcmp(result -> lastName,in))
-            printf("Find %s\n",input[i]);
-        else {
+        if(0 == strcmp(result -> lastName,in)) {
+            //printf("Find %s\n",input[i]);
+        } else {
+            char output[MAX_LAST_NAME_SIZE];
             int count = 0;
+            int input_len = strlen(in);
+            int result_len,max_len,r;
+            float radio;
             while (result != NULL) {
-                count++;
                 decompress(result->lastName,output);
-                printf("Simular Result : %s \n",output);
+                result_len = strlen(output);
+                if(abs(result_len - input_len) <= STRING_COMPARISON_LENGTH) {
+                    max_len = (result_len < input_len) ? input_len : result_len;
+                    r = Levenshtein(output,in);
+                    radio = 1.0 - ((float)r) / max_len;
+                    if(radio > STRING_COMPARISON_THRESHOLD) {
+                        //printf("Simular Result : %s \t result : %d \t radio : %.2f \n",result->lastName,r,radio);
+                        count++;
+                    }
+                }
                 result = result -> pNext;
             }
-            printf("Candidate count is %d \n",count);
+            //printf("Candidate count is %d \n",count);
         }
 #endif
         clock_gettime(CLOCK_REALTIME, &end);

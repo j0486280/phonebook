@@ -11,6 +11,33 @@ static int COMPRESS_CHAR_BITS  = 5 - 1;
 static int ORIGINAL_CHAR_BITS = 8 - 1;
 static int SOUNDEX_OUTPUT_LEN = 5;
 
+int Levenshtein(char *a,char *b)
+{
+    int i,j,cost,t;
+    int len_a = strlen(a);
+    int len_b = strlen(b);
+
+    if(0==strcmp(a,b)) return 0;
+    if(len_a == 0) return len_b;
+    if(len_b == 0) return len_a;
+
+    int *v0 = malloc(sizeof(int)*(len_b+1));
+    int *v1 = malloc(sizeof(int)*(len_b+1));
+
+    for(i = 0; i <= len_b; i++) v0[i] = i;
+
+    for(i = 0; i < len_a; i++) {
+        v1[0] = i + 1;
+        for(j = 0; j < len_b; j++) {
+            cost = (a[i] == b[j])?0:1;
+            t = (v1[j]<v0[j + 1])?v1[j] + 1:v0[j + 1] + 1;
+            v1[j + 1] = (t < v0[j] + cost)? t : v0[j] + cost;
+        }
+        for(j = 0; j <= len_b; j++) v0[j]=v1[j];
+    }
+    return v1[len_b];
+}
+
 static inline void Soundex (char* input, char* output)
 {
     int i = 1,index = 1;

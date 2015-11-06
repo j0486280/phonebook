@@ -4,10 +4,12 @@
 #define MAX_LAST_NAME_SIZE 16
 #define COMPRESS_LAST_NAME_SIZE 10
 #define HASH_BUCKET_SIZE  260000
+#define STRING_COMPARISON_THRESHOLD 0.7
+#define STRING_COMPARISON_LENGTH 3
 #define COMPRESS_METHOD
 #define hashFunc hash_Soundex
 #define FUZZY_SEARCH
-//#define SHOW_RESULT
+#define SHOW_RESULT
 
 typedef struct __PHONE_BOOK_ENTRY {
     char lastName[COMPRESS_LAST_NAME_SIZE];
@@ -37,7 +39,7 @@ struct PHONEBOOK {
 };
 
 void decompress(char *input,char *output);
-
+int Levenshtein(char *a,char *b);
 entry *pHead[HASH_BUCKET_SIZE];
 entry *e[HASH_BUCKET_SIZE];
 struct PHONEBOOK PHONEBOOK;
